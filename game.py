@@ -48,20 +48,28 @@ class Game:
 
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     # Look if you clicked on attack tower
-                    for tw in self.attack_towers:
-                        if tw.click(pos[0],pos[1]):
-                            tw.selected = True
-                            self.selected_tower = tw
-                        else:
-                            tw.selected = False
+                    btn_clicked = None
+                    if self.selected_tower:
+                        btn_clicked = self.selected_tower.menu.get_clicked(pos[0],pos[1])
+                        if btn_clicked:
+                            print(btn_clicked)
 
-                    # Look if you clicked on support tower
-                    for tw in self.support_towers:
-                        if tw.click(pos[0],pos[1]):
-                            tw.selected = True
-                            self.selected_tower = tw
-                        else:
-                            tw.selected = False
+                    if not(btn_clicked):
+                        for tw in self.attack_towers:
+                            if tw.click(pos[0],pos[1]):
+                                tw.selected = True
+                                self.selected_tower = tw
+                            else:
+                                tw.selected = False
+
+                            # Look if you clicked on support tower
+                            for tw in self.support_towers:
+                                if tw.click(pos[0],pos[1]):
+                                    tw.selected = True
+                                    self.selected_tower = tw
+                                else:
+                                    tw.selected = False
+                        
 
             # Loop through enemies
             to_del = []
