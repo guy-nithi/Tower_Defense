@@ -2,7 +2,10 @@ import pygame
 import os
 from .tower import Tower
 import math
-import time
+from menu.menu import Menu
+
+menu_bg = pygame.transform.scale(pygame.image.load(os.path.join("assets","menu.png")), (120,70))
+upgrade_btn = pygame.transform.scale(pygame.image.load(os.path.join("assets","upgrade.png")), (50,50))
 
 tower_imgs1 = []
 archer_imgs1 = []
@@ -32,6 +35,9 @@ class ArcherTowerLong(Tower):
         self.damage = 1
         self.original_damage = self.damage
         self.width = self.height = 90
+        # Define Menu and buttons
+        self.menu = Menu(self,self.x,self.y,menu_bg,[2000, 5000, "MAX"])
+        self.menu.add_btn(upgrade_btn,"Upgrade")
 
     def draw(self,win):
         super().draw_radius(win)
@@ -121,5 +127,8 @@ class ArcherTowerShort(ArcherTowerLong):
         self.inRange = False
         self.left = True
         self.damage = 2
+        # Define Menu and buttons
+        self.menu = Menu(self,self.x,self.y,menu_bg,[2500, 2500, "MAX"])
+        self.menu.add_btn(upgrade_btn,"Upgrade")
         
        
