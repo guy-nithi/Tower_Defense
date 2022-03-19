@@ -8,28 +8,40 @@ from enemies.club import Club
 from enemies.wizard import Wizard
 from towers.archerTower import ArcherTowerLong, ArcherTowerShort
 from towers.supportTower import DamageTower, RangeTower
+from menu.menu import VerticalMenu
 import time
 import random
 pygame.font.init()
 
 lifes_img = pygame.image.load(os.path.join("assets", "heart.png"))
 star_imgs = pygame.image.load(os.path.join("assets", "star.png"))
+side_imgs = pygame.transform.scale(pygame.image.load(os.path.join("assets", "side.png")),(120,500))
+
+buy_archer = pygame.transform.scale(pygame.image.load(os.path.join("assets", "buy_archer.png")),(75,75))
+buy_archer2 = pygame.transform.scale(pygame.image.load(os.path.join("assets", "buy_archer_2.png")),(75,75))
+buy_damage = pygame.transform.scale(pygame.image.load(os.path.join("assets", "buy_damage.png")),(75,75))
+buy_range = pygame.transform.scale(pygame.image.load(os.path.join("assets", "buy_range.png")),(75,75))
 
 class Game:
     def __init__(self):
-        self.width = 1250
+        self.width = 1350
         self.height = 700
         self.win = pygame.display.set_mode((self.width, self.height))
         self.enemys = [Club()]
         self.attack_towers = [ArcherTowerLong(300,200),ArcherTowerLong(700,600), ArcherTowerShort(200,600),ArcherTowerShort(900,200)]
         self.support_towers = [RangeTower(100,600),DamageTower(400,200)]
         self.lifes = 10
-        self.money = 100
+        self.money = 2000
         self.bg = pygame.image.load(os.path.join("assets","bg.png"))
         self.bg = pygame.transform.scale(self.bg, (self.width,self.height))
         self.timer = time.time()
-        self.life_font = pygame.font.SysFont("comicsans", 70)
+        self.life_font = pygame.font.SysFont("comicsans", 65)
         self.selected_tower = None
+        self.menu = VerticalMenu(self.width - side_imgs.get_width() + 70,250, side_imgs)
+        self.menu.add_btn(buy_archer, "buy_archer",500)
+        self.menu.add_btn(buy_archer2, "buy_archer2",750)
+        self.menu.add_btn(buy_damage, "buy_damage",1000)
+        self.menu.add_btn(buy_range, "buy_range",1000)
 
     def run(self):
         run = True
@@ -53,7 +65,10 @@ class Game:
                         btn_clicked = self.selected_tower.menu.get_clicked(pos[0],pos[1])
                         if btn_clicked:
                             if btn_clicked == 'Upgrade':
-                                self.selected_tower.upgrade()
+                                cost = self.selected_tower.menu.get_item_cost()
+                                if self.money >= cost:
+                                    self.money -= cost
+                                    self.selected_tower.upgrade()
 
                     if not(btn_clicked):
                         for tw in self.attack_towers:
@@ -85,7 +100,7 @@ class Game:
 
             # Loop through attack towers
             for tw in self.attack_towers:
-                tw.attack(self.enemys)
+                self.money += tw.attack(self.enemys)
 
             # Loop through support towers
             for tw in self.support_towers:
@@ -114,13 +129,26 @@ class Game:
         for en in self.enemys:
             en.draw(self.win)
 
+        # Draw menu
+        self.menu.draw(self.win)
+
         # Draw lifes
         text = self.life_font.render(str(self.lifes), 1, (255,255,255))
 
         life = pygame.transform.scale(lifes_img,(50,50))
         start_x = self.width - life.get_width() - 10
+
         self.win.blit(text, (start_x - text.get_width() - 10, 13))
         self.win.blit(life, (start_x, 10))
+
+        # Draw money
+        text = self.life_font.render(str(self.money), 1, (255,255,255))
+
+        money = pygame.transform.scale(star_imgs,(50,50))
+        start_x = self.width - life.get_width() - 10
+
+        self.win.blit(text, (start_x - text.get_width() - 10, 75))
+        self.win.blit(money, (start_x, 65))
 
         pygame.display.update()
 

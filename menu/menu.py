@@ -1,8 +1,10 @@
+from logging import exception
 import pygame
 import os
 pygame.font.init()
 
 star = pygame.transform.scale(pygame.image.load(os.path.join("assets","star.png")), (50,50))
+star2 = pygame.transform.scale(pygame.image.load(os.path.join("assets","star.png")), (20,20))
 
 class Button:
     """
@@ -36,7 +38,19 @@ class Button:
 
     def draw(self,win):
         win.blit(self.img,(self.x,self.y))
-        
+
+class VerticalButton(Button):
+    """
+    Button class for menu object
+    """
+    def __init__(self,x,y,img,name,cost):
+        self.name = name
+        self.img = img
+        self.x = x
+        self.y = y
+        self.width = self.img.get_width()
+        self.height = self.img.get_height()
+        self.cost = cost
 
 class Menu:
     """
@@ -66,6 +80,9 @@ class Menu:
         btn_x = self.x - self.bg.get_width()/2 + 10
         btn_y = self.y - 120 + 10
         self.buttons.append(Button(btn_x,btn_y,img,name))
+
+    def get_item_cost(self):
+        return self.item_cost[self.tower.level - 1]
 
     def draw(self,win):
         """
@@ -98,3 +115,48 @@ class Menu:
                 return btn.name
         
         return None
+
+class VerticalMenu(Menu):
+    """
+    Vertical Menu For Side Bar of Game
+    """
+    def __init__(self, x, y, img):
+        self.x = x
+        self.y = y
+        self.width = img.get_width()
+        self.height = img.get_height()
+        self.buttons = []
+        self.items = 0
+        self.bg = img
+        self.font = pygame.font.SysFont("comicsans", 25)
+
+    def add_btn(self, img, name, cost):
+        """
+        Adds buttons to menu
+
+        Args:
+            img (surface):
+            name (str):
+        """
+        self.items += 1
+        btn_x = self.x - 40
+        btn_y = self.y-100 + (self.items-1)*120
+        self.buttons.append(VerticalButton(btn_x,btn_y,img,name,cost))
+
+
+    def get_item_cost(self):
+        return Exception("Not Implimented")
+
+    def draw(self,win):
+        """
+        Draws btn and menu bg
+
+        Args:
+            win (surface):
+        """
+        win.blit(self.bg,(self.x - self.bg.get_width()/2,self.y-120))
+        for item in self.buttons:
+            item.draw(win)
+            win.blit(star2, (item.x+2,item.y + item.height))
+            text = self.font.render(str(item.cost),1,(255,255,255))
+            win.blit(text,(item.x + item.width/2 - text.get_width()/2 + 7, item.y + item.height + 5))

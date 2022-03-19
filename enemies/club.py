@@ -15,6 +15,8 @@ for x in range(20):
 class Club(Enemy):
     def __init__(self):
         super().__init__()
+        self.name = 'club'
+        self.money = 5
         self.imgs = imgs[:]
         self.max_health = 5
         self.health = self.max_health
