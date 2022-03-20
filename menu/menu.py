@@ -157,8 +157,12 @@ class VerticalMenu(Menu):
         self.buttons.append(VerticalButton(btn_x,btn_y,img,name,cost))
 
 
-    def get_item_cost(self):
-        return Exception("Not Implimented")
+    def get_item_cost(self,name):
+        for btn in self.buttons:
+            if btn.name == name:
+                return btn.cost
+
+        return -1
 
     def draw(self,win):
         """

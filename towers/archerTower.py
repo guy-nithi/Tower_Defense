@@ -51,12 +51,12 @@ class ArcherTowerLong(Tower):
 
         if self.inRange and not self.moving:
             self.archer_count += 1
-            if self.archer_count >= len(self.archer_imgs)*10:
+            if self.archer_count >= len(self.archer_imgs)*5:
                 self.archer_count = 0
         else:
             self.archer_count = 0
 
-        archer = self.archer_imgs[self.archer_count//10]
+        archer = self.archer_imgs[self.archer_count//5]
         if self.left == True:
             add = -25
         else:
@@ -95,7 +95,7 @@ class ArcherTowerLong(Tower):
         enemy_closest.sort(key=lambda x: x.x)
         if len(enemy_closest) > 0:
             first_enemy = enemy_closest[0]
-            if self.archer_count == 6:
+            if self.archer_count == 4:
                 if first_enemy.hit(self.damage) == True:
                     money = first_enemy.money
                     enemies.remove(first_enemy)
@@ -140,5 +140,5 @@ class ArcherTowerShort(ArcherTowerLong):
         self.menu = Menu(self,self.x,self.y,menu_bg,[2500, 2500, "MAX"])
         self.menu.add_btn(upgrade_btn,"Upgrade")
         self.name = "archer2"
-        
+
        

@@ -25,6 +25,32 @@ buy_range = pygame.transform.scale(pygame.image.load(os.path.join("assets", "buy
 attack_tower_names = ["archer","archer2"]
 support_tower_names = ["range","damage"]
 
+# Waves are in form
+# Frequency of enemies
+# (# of scorpion, # of wizards, # of clubs)
+waves = [
+    [20,0,0],
+    [50,0,0],
+    [100,0,0],
+    [0,20,0],
+    [0,50,0],
+    [0,100,0],
+    [20,100,0],
+    [50,100,0],
+    [100,100,0],
+    [20,0,50],
+    [20,0,100],
+    [20,0,150],
+    [0,0,200],
+    [150,150,0],
+    [0,1,0],
+    [0,1,1],
+    [1,1,1],
+    [10,10,10],
+    [100,100,100],
+    [500,500,500]
+]
+
 class Game:
     def __init__(self):
         self.width = 1350
@@ -46,20 +72,41 @@ class Game:
         self.menu.add_btn(buy_damage, "buy_damage",1000)
         self.menu.add_btn(buy_range, "buy_range",1000)
         self.moving_object = False
+        self.wave = 0
+        self.current_wave = waves[self.wave][:]
+        self.pause = False
+
+    def gen_enemies(self):
+        """
+        :Return
+            enemy:
+        """
+        if sum(self.current_wave) == 0:
+            self.wave += 1
+            self.current_wave = waves[self.wave]
+            self.pause = True
+        else:
+            wave_enemies = [Scorpion(),Wizard(),Club()]
+            for x in range(len(self.current_wave)):
+                if self.current_wave[x] != 0:
+                    self.enemys.append(wave_enemies[x])
+                    self.current_wave[x] = self.current_wave[x] - 1
+                    break
 
     def run(self):
         run = True
         clock = pygame.time.Clock()
         while run:
-            clock.tick(500)
+            clock.tick(200)
 
-            # Gen Monsters
-            if time.time() - self.timer >= random.randrange(1,5)/2:
-                self.timer = time.time()
-                self.enemys.append(random.choice([Club(),Scorpion(),Wizard()]))
+            if self.pause == False:
+                # Gen Monsters
+                if time.time() - self.timer >= random.randrange(1,5)/2:
+                    self.timer = time.time()
+                    self.gen_enemies()
 
             pos = pygame.mouse.get_pos()
-
+ 
             # Check for moving object
             if self.moving_object:
                 self.moving_object.move(pos[0],pos[1])
@@ -83,7 +130,10 @@ class Game:
                         # Look if you click on side menu
                         side_menu_button = self.menu.get_clicked(pos[0],pos[1])
                         if side_menu_button:
-                            self.add_tower(side_menu_button)
+                            cost = self.menu.get_item_cost(side_menu_button)
+                            if self.money >= cost:
+                                self.money -= cost
+                                self.add_tower(side_menu_button)
 
                         # Look if you clicked on attack tower or support tower
                         btn_clicked = None
