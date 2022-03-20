@@ -92,3 +92,6 @@ class Tower:
     def move(self,x,y):
         self.x = x
         self.y = y
+        self.menu.x = x
+        self.menu.y = y
+        self.menu.update()

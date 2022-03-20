@@ -22,13 +22,16 @@ buy_archer2 = pygame.transform.scale(pygame.image.load(os.path.join("assets", "b
 buy_damage = pygame.transform.scale(pygame.image.load(os.path.join("assets", "buy_damage.png")),(75,75))
 buy_range = pygame.transform.scale(pygame.image.load(os.path.join("assets", "buy_range.png")),(75,75))
 
+attack_tower_names = ["archer","archer2"]
+support_tower_names = ["range","damage"]
+
 class Game:
     def __init__(self):
         self.width = 1350
         self.height = 700
         self.win = pygame.display.set_mode((self.width, self.height))
         self.enemys = [Club()]
-        self.attack_towers = [ArcherTowerLong(300,200),ArcherTowerLong(700,600), ArcherTowerShort(200,600),ArcherTowerShort(900,200)]
+        self.attack_towers = []
         self.support_towers = [RangeTower(100,600),DamageTower(400,200)]
         self.lifes = 10
         self.money = 2000
@@ -39,52 +42,75 @@ class Game:
         self.selected_tower = None
         self.menu = VerticalMenu(self.width - side_imgs.get_width() + 70,250, side_imgs)
         self.menu.add_btn(buy_archer, "buy_archer",500)
-        self.menu.add_btn(buy_archer2, "buy_archer2",750)
+        self.menu.add_btn(buy_archer2, "buy_archer_2",750)
         self.menu.add_btn(buy_damage, "buy_damage",1000)
         self.menu.add_btn(buy_range, "buy_range",1000)
+        self.moving_object = False
 
     def run(self):
         run = True
         clock = pygame.time.Clock()
         while run:
+            clock.tick(500)
+
+            # Gen Monsters
             if time.time() - self.timer >= random.randrange(1,5)/2:
                 self.timer = time.time()
                 self.enemys.append(random.choice([Club(),Scorpion(),Wizard()]))
-            # pygame.time.delay(500)
-            clock.tick(500)
+
+            pos = pygame.mouse.get_pos()
+
+            # Check for moving object
+            if self.moving_object:
+                self.moving_object.move(pos[0],pos[1])
+
+            # Main event loop
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     run = False
 
-                pos = pygame.mouse.get_pos()
-
                 if event.type == pygame.MOUSEBUTTONDOWN:
-                    # Look if you clicked on attack tower
-                    btn_clicked = None
-                    if self.selected_tower:
-                        btn_clicked = self.selected_tower.menu.get_clicked(pos[0],pos[1])
-                        if btn_clicked:
-                            if btn_clicked == 'Upgrade':
-                                cost = self.selected_tower.menu.get_item_cost()
-                                if self.money >= cost:
-                                    self.money -= cost
-                                    self.selected_tower.upgrade()
+                    # If you're moving an object and click
+                    if self.moving_object:
+                        if self.moving_object.name in attack_tower_names:
+                            self.attack_towers.append(self.moving_object)
+                        elif self.moving_object.name in support_tower_names:
+                            self.support_towers.append(self.moving_object)
+                        self.moving_object.moving = False
+                        self.moving_object = None
+                    else:
 
-                    if not(btn_clicked):
-                        for tw in self.attack_towers:
-                            if tw.click(pos[0],pos[1]):
-                                tw.selected = True
-                                self.selected_tower = tw
-                            else:
-                                tw.selected = False
+                        # Look if you click on side menu
+                        side_menu_button = self.menu.get_clicked(pos[0],pos[1])
+                        if side_menu_button:
+                            self.add_tower(side_menu_button)
 
-                            # Look if you clicked on support tower
-                            for tw in self.support_towers:
+                        # Look if you clicked on attack tower or support tower
+                        btn_clicked = None
+                        if self.selected_tower:
+                            btn_clicked = self.selected_tower.menu.get_clicked(pos[0],pos[1])
+                            if btn_clicked:
+                                if btn_clicked == 'Upgrade':
+                                    cost = self.selected_tower.menu.get_item_cost()
+                                    if self.money >= cost:
+                                        self.money -= cost
+                                        self.selected_tower.upgrade()
+
+                        if not(btn_clicked):
+                            for tw in self.attack_towers:
                                 if tw.click(pos[0],pos[1]):
                                     tw.selected = True
                                     self.selected_tower = tw
                                 else:
                                     tw.selected = False
+
+                                # Look if you clicked on support tower
+                                for tw in self.support_towers:
+                                    if tw.click(pos[0],pos[1]):
+                                        tw.selected = True
+                                        self.selected_tower = tw
+                                    else:
+                                        tw.selected = False
                         
 
             # Loop through enemies
@@ -129,6 +155,10 @@ class Game:
         for en in self.enemys:
             en.draw(self.win)
 
+        # Draw moving object
+        if self.moving_object:
+            self.moving_object.draw(self.win)
+
         # Draw menu
         self.menu.draw(self.win)
 
@@ -152,8 +182,18 @@ class Game:
 
         pygame.display.update()
 
-    def draw_menu(self):
-        pass
+    def add_tower(self,name):
+        x,y = pygame.mouse.get_pos()
+        name_list = ["buy_archer", "buy_archer_2", "buy_damage", "buy_range"]
+        object_list = [ArcherTowerLong(x,y),ArcherTowerShort(x,y),DamageTower(x,y), RangeTower(x,y)]
+
+        try:
+            obj = object_list[name_list.index(name)]
+            self.moving_object = obj
+            obj.moving = True
+        except Exception as e:
+            print(str(e) + "NOT VALID NAME")
+
 
 g = Game()
 g.run()

@@ -10,11 +10,12 @@ class Button:
     """
     Button class for menu object
     """
-    def __init__(self,x,y,img,name):
+    def __init__(self,menu,img,name):
         self.name = name
         self.img = img
-        self.x = x
-        self.y = y
+        self.x = menu.x - 50
+        self.y = menu.y - 110
+        self.menu = menu
         self.width = self.img.get_width()
         self.height = self.img.get_height()
         self.imgs = []
@@ -38,6 +39,10 @@ class Button:
 
     def draw(self,win):
         win.blit(self.img,(self.x,self.y))
+
+    def update(self):
+        self.x = self.menu.x - 50
+        self.y = self.menu.y - 110
 
 class VerticalButton(Button):
     """
@@ -77,9 +82,7 @@ class Menu:
             name (str):
         """
         self.items += 1
-        btn_x = self.x - self.bg.get_width()/2 + 10
-        btn_y = self.y - 120 + 10
-        self.buttons.append(Button(btn_x,btn_y,img,name))
+        self.buttons.append(Button(self,img,name))
 
     def get_item_cost(self):
         return self.item_cost[self.tower.level - 1]
@@ -115,6 +118,16 @@ class Menu:
                 return btn.name
         
         return None
+
+    def update(self):
+        """
+        update menu and button location
+
+        Returns:
+            None:
+        """
+        for btn in self.buttons:
+            btn.update()
 
 class VerticalMenu(Menu):
     """
