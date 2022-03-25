@@ -1,7 +1,6 @@
 import pygame
 import math
 
-
 class Enemy:
 
     def __init__(self):
@@ -10,7 +9,7 @@ class Enemy:
         self.animation_count = 0
         self.health = 1
         self.vel = 3
-        self.path = [(-10, 224),(19, 224), (177, 235), (282, 283), (526, 277), (607, 217), (641, 105), (717, 57), (796, 83), (855, 222), (973, 284), (1046, 366), (1022, 458), (894, 492), (740, 504), (580, 542), (148, 541), (10, 442), (-20, 335), (-75, 305), (-100, 345)]
+        self.path = [(-10, 226),(46, 225),(164, 222),(263, 273),(639, 265),(681, 222),(697, 147),(744, 76),(834, 55),(925, 118),(958, 217),(1042, 279),(1148, 317),(1168, 412),(1120, 480),(997, 490),(887, 496),(797, 528),(732, 560),(147, 545),(103, 460),(72, 359),(7, 341),(0, 341),(-40,334)]
         self.x = self.path[0][0]
         self.y = self.path[0][1]
         self.img = None
@@ -30,13 +29,9 @@ class Enemy:
         :return: None
         """
         self.img = self.imgs[self.animation_count]
-        self.animation_count += 1
-        if self.animation_count >= len(self.imgs):
-            self.animation_count = 0
 
         win.blit(self.img,(self.x-self.img.get_height()/2,self.y-self.img.get_height()/2 - 35))
         self.draw_health_bar(win)
-        self.move()
 
     def draw_health_bar(self,win):
         """
@@ -70,6 +65,9 @@ class Enemy:
         Move enemy
         :return: None
         """
+        self.animation_count += 1
+        if self.animation_count >= len(self.imgs):
+            self.animation_count = 0
         x1, y1 = self.path[self.path_pos]
         if self.path_pos + 1 >= len(self.path):
             x2,y2 = (-10, 355)
